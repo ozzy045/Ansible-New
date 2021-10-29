@@ -4,9 +4,9 @@
     vars_files:
       - "{{ var_file_path }}"
     tasks:
-   - name: Extract foo.tgz into /var/lib/foo
+   - name: Extract the artifacts
      ansible.builtin.unarchive:
-       src: */*.zip
+       src: home/orzaguri/bootcamp project-CI (1).zip
        dest: /home/orzaguri/	
 
     #Install npm package
