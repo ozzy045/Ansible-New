@@ -1,0 +1,72 @@
+---
+  - hosts: "{{ group }}"
+    become : true
+    vars_files:
+      - "{{ var_file_path }}"
+    tasks:
+   - name: Extract foo.tgz into /var/lib/foo
+     ansible.builtin.unarchive:
+       src: */*.zip
+       dest: /home/orzaguri/	
+
+    #Install npm package
+    - name: "Install packages based on package.json."
+      npm:
+        path: "/home/orzaguri/node-weight-tracker"
+        state: latest
+
+    #Create .env file
+    - name: "Creating an empty file"
+      file:
+        path: "/home/orzaguri/node-weight-tracker/.env"
+        state: touch
+
+    - name: Insert configuration to the env file
+      blockinfile:
+        path: /home/orzaguri/node-weight-tracker/.env
+        block: |
+          # Host configuration
+            PORT=8080
+            HOST=0.0.0.0
+            NODE_ENV=development
+            HOST_URL= {{HOST_URL}}
+            COOKIE_ENCRYPT_PWD={{COOKIE_ENCRYPT_PWD}}
+
+          # Okta configuration
+            OKTA_ORG_URL={{OKTA_ORG_URL}}
+            OKTA_CLIENT_ID={{OKTA_CLIENT_ID}}
+            OKTA_CLIENT_SECRET={{{OKTA_CLIENT_SECRET}}
+
+          # Postgres configuration
+            PGHOST={{PGHOST}}
+            PGUSERNAME={{PGUSERNAME}}
+            PGDATABASE={{PGDATABASE}}
+            PGPASSWORD={{PGPASSWORD}}
+            PGPORT=5432
+
+    - name: "Run initdb"
+      command: npm run initdb
+      args:
+        chdir: "/home/orzaguri/node-weight-tracker/"
+      run_once: true
+
+
+    - name: "Install PM2"
+      npm:
+        name: pm2
+        global: yes
+
+    - name: "run the app"
+      command: sudo pm2 restart npm -- run dev --watch
+      args:
+        chdir: "/home/orzaguri/node-weight-tracker/"
+
+    - name: "pm2 save"
+      command: pm2 save
+      args:
+        chdir: "/home/orzaguri/node-weight-tracker/"
+
+    - name: "pm2 startup"
+      command: pm2 startup
+      args:
+        chdir: "/home/orzaguri/node-weight-tracker/"
