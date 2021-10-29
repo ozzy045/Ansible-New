@@ -4,10 +4,10 @@
     vars_files:
       - "{{ var_file_path }}"
     tasks:
-   - name: Extract the artifacts
-     ansible.builtin.unarchive:
-       src: home/orzaguri/bootcamp project-CI (1).zip
-       dest: /home/orzaguri/	
+    - name: Extract the artifacts
+      ansible.builtin.unarchive:
+        src: home/orzaguri/bootcamp project-CI (1).zip
+        dest: /home/orzaguri/	
 
     #Install npm package
     - name: "Install packages based on package.json."
