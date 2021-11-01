@@ -17,5 +17,6 @@ create your groups like this:
    Group name inserted "[]", and below that the machines ip.
 
 5. Make a new directory called "group_vars" in the same directory where you have the playbook and create a YAML file there with the same name as your group name (enviroment name)
-6. Make sure your enviroments are ready and run the playbook with this command:
+6. In this file store the .env variables. for example- PGHOST: "Your postgres host name" (without the quotes)
+7. Make sure your enviroments are ready and run the playbook with this command:
 *  Ansible-Playbook *Your Play book YAML file* --extra-vars "group=*your group name* var_file_path=*group_vars/variable file name*"
