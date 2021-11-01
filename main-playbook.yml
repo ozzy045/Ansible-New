@@ -4,52 +4,55 @@
     vars_files:
       - "{{ var_file_path }}"
     tasks:
-    - name: Extract the artifacts
-      ansible.builtin.unarchive:
-        src: home/orzaguri/bootcamp project-CI (1).zip
-        dest: /home/orzaguri/	
 
-    #Install npm package
-    - name: "Install packages based on package.json."
-      npm:
-        path: "/home/orzaguri/node-weight-tracker"
-        state: latest
+    - name: "install nodejs"
+      command: sudo apt install nodejs
+
+    - name: "npm init"
+      command: sudo npm init -y
+
+    - name: "npm dependecies"
+      command: sudo npm install @hapi/hapi@19 @hapi/bell@12 @hapi/boom@9 @hapi/cookie@11 @hapi/inert@6 @hapi/joi@17 @hapi/vision@6 dotenv@8 ejs@3 postgres@1 -y
+
+    - name: "npm install"
+      command: sudo npm install --save-dev nodemon@2 -y
+
 
     #Create .env file
     - name: "Creating an empty file"
       file:
-        path: "/home/orzaguri/node-weight-tracker/.env"
+        path: "/home/orzaguri/WeightApp/.env"
         state: touch
 
     - name: Insert configuration to the env file
       blockinfile:
-        path: /home/orzaguri/node-weight-tracker/.env
+        path: /home/orzaguri/WeightApp/.env
         block: |
           # Host configuration
-            PORT=8080
+            PORT=8081
             HOST=0.0.0.0
             NODE_ENV=development
-            HOST_URL= {{HOST_URL}}
-            COOKIE_ENCRYPT_PWD={{COOKIE_ENCRYPT_PWD}}
+            HOST_URL= {{ HOST_URL }}
+            COOKIE_ENCRYPT_PWD={{ COOKIE_ENCRYPT_PWD }}
 
           # Okta configuration
-            OKTA_ORG_URL={{OKTA_ORG_URL}}
-            OKTA_CLIENT_ID={{OKTA_CLIENT_ID}}
-            OKTA_CLIENT_SECRET={{{OKTA_CLIENT_SECRET}}
+            OKTA_ORG_URL={{ OKTA_ORG_URL }}
+            OKTA_CLIENT_ID={{ OKTA_CLIENT_ID }}
+            OKTA_CLIENT_SECRET={{ OKTA_CLIENT_SECRET }}
 
           # Postgres configuration
-            PGHOST={{PGHOST}}
-            PGUSERNAME={{PGUSERNAME}}
-            PGDATABASE={{PGDATABASE}}
-            PGPASSWORD={{PGPASSWORD}}
+            PGHOST={{ PGHOST }}
+            PGUSERNAME={{ PGUSERNAME }}
+            PGDATABASE={{ PGDATABASE }}
+            PGPASSWORD={{ PGPASSWORD }}
             PGPORT=5432
+
 
     - name: "Run initdb"
       command: npm run initdb
       args:
-        chdir: "/home/orzaguri/node-weight-tracker/"
+        chdir: "/home/orzaguri/WeightApp/"
       run_once: true
-
 
     - name: "Install PM2"
       npm:
@@ -57,16 +60,16 @@
         global: yes
 
     - name: "run the app"
-      command: sudo pm2 restart npm -- run dev --watch
+      command: sudo pm2 start npm -- run dev --watch
       args:
-        chdir: "/home/orzaguri/node-weight-tracker/"
+        chdir: "/home/orzaguri/WeightApp/"
 
     - name: "pm2 save"
       command: pm2 save
       args:
-        chdir: "/home/orzaguri/node-weight-tracker/"
+        chdir: "/home/orzaguri/WeightApp/"
 
     - name: "pm2 startup"
-      command: pm2 startup
+      command: sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u orzaguri --hp /home/orzaguri
       args:
-        chdir: "/home/orzaguri/node-weight-tracker/"
+        chdir: "/home/orzaguri/WeightApp/"
